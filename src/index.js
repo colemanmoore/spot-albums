@@ -1,6 +1,7 @@
 import Spotify from 'spotify-web-api-node';
-import config from './config';
-import artists from './artists';
+import utils from './utils';
+import config from '../config';
+import artists from '../artists';
 
 if (location.hash) {
 
@@ -8,7 +9,10 @@ if (location.hash) {
 
     if (spotifyApi) {
 
-        spotifyApi.getArtistAlbums(artists.KATE_BUSH).then(
+        const keys = Object.keys(artists);
+        const artist = artists[keys[keys.length * Math.random() << 0]];
+
+        spotifyApi.getArtistAlbums(artist).then(
             function(data) {
                 const container = document.getElementById('container');
                 data.body.items.forEach(item => {
@@ -30,7 +34,7 @@ if (location.hash) {
 }
 
 function goAuthorizeUser() {
-    const state = generateRandomString(8);
+    const state = utils.generateRandomString(8);
     localStorage.setItem(config.spotifyStateKey, state);
 
     window.location =
@@ -42,7 +46,7 @@ function goAuthorizeUser() {
 }
 
 function initializeSpotifyApi() {
-    const params = getHashParams();
+    const params = utils.getHashParams();
     const savedState = localStorage.getItem(config.spotifyStateKey);
 
     if (params.state === savedState && params.access_token) {
@@ -56,23 +60,4 @@ function initializeSpotifyApi() {
     } else {
         console.error('state did not match');
     }
-}
-
-function getHashParams() {
-    var hashParams = {};
-    var e, r = /([^&;=]+)=?([^&;]*)/g,
-        q = window.location.hash.substring(1);
-    while ( e = r.exec(q)) {
-        hashParams[e[1]] = decodeURIComponent(e[2]);
-    }
-    return hashParams;
-}
-
-function generateRandomString(length) {
-    var text = '';
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
 }
